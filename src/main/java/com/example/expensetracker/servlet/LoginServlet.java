@@ -5,9 +5,10 @@ import com.example.expensetracker.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 
 @WebServlet("/login")
@@ -21,16 +22,18 @@ public class LoginServlet extends HttpServlet {
 
         User user = userDAO.getUserByUsername(username);
 
-        HttpSession session = request.getSession();
-
         if (user == null || !user.getPassword().equals(password)) {
-            session.setAttribute("errorMessage", "Invalid username or password.");
-            response.sendRedirect("login.jsp"); // Redirect to login page
+            request.setAttribute("errorMessage", "Invalid username or password.");
+            request.setAttribute("prevUsername", username);
+            request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
 
-        // Successful login
+        // ✅ Correct session usage — only once
+        HttpSession session = request.getSession();
         session.setAttribute("user", user);
-        response.sendRedirect("expense.jsp");
+
+        // ✅ Redirect to expense servlet (NOT .jsp directly)
+        response.sendRedirect("expense");
     }
 }

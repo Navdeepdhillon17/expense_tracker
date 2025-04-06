@@ -1,92 +1,168 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%
+    if (session.getAttribute("user") != null) {
+        response.sendRedirect("expense");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Login - Expense Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+        }
+
         body {
-            background: #1e3a8a; /* Dark blue background */
-            color: white;
-            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
         }
-        .container {
-            background: #ffffff;
-            color: #333;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-            width: 320px;
-            text-align: center;
+
+        .login-container {
+            margin: 20px auto;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            max-width: 1000px;
         }
-        h2 {
-            margin-bottom: 1rem;
-            color: #1e3a8a;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .error {
-            color: red;
-            font-weight: bold;
-        }
-        button {
-            background: #1e3a8a;
+
+        .login-left {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
+            padding: 20px 20px 0 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-right {
+            padding: 40px;
+        }
+
+        .login-title {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--primary-dark);
+        }
+
+        .illustration {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .btn-login {
+            background-color: var(--primary);
             border: none;
             padding: 10px;
-            width: 100%;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
         }
-        button:hover {
-            background: #152c70;
+
+        .btn-login:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
         }
+
         .register-link {
-            margin-top: 10px;
-            display: block;
-            color: #1e3a8a;
-            text-decoration: none;
+            color: var(--primary);
+            font-weight: 500;
         }
-        .register-link:hover {
-            text-decoration: underline;
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .login-left {
+                padding: 30px 20px;
+                text-align: center;
+            }
+
+            .login-right {
+                padding: 30px 20px;
+            }
+
+            .illustration {
+                max-width: 80%;
+                margin: 20px auto;
+            }
         }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h2>Login</h2>
-    <% String successMessage = (String) session.getAttribute("successMessage"); %>
-    <% if (successMessage != null) { %>
-    <p style="color: green; font-weight: bold;"><%= successMessage %></p>
-    <% session.removeAttribute("successMessage"); %> <!-- Clear message after showing -->
-    <% } %>
+    <div class="row login-container">
+        <!-- Left Panel -->
+        <div class="col-md-6 login-left">
+            <h2 class="mb-3">Welcome to Expense Tracker</h2>
+            <p>Track your expenses and manage your budget efficiently.</p>
 
+            <img src="https://illustrations.popsy.co/amber/digital-nomad.svg"
+                 alt="Expense tracking illustration"
+                 class="illustration"
+                 onerror="this.onerror=null;this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0xNiA3aDNhMiAyIDAgMDEyIDJ2OWEyIDIgMCAwMS0yIDJINWEyIDIgMCAwMS0yLTJWOGEyIDIgMCAwMTItMmgzbTAgMTBoNk0xMiA0YTIgMiAwIDExLTQgMCAyIDIgMCAwMTQgMHoiLz48L3N2Zz4='">
+        </div>
 
-    <% String errorMessage = (String) session.getAttribute("errorMessage"); %>
-    <% if (errorMessage != null) { %>
-    <p class="error"><%= errorMessage %></p>
-    <% session.removeAttribute("errorMessage"); %>
-    <% } %>
+        <!-- Right Panel -->
+        <div class="col-md-6 login-right">
+            <%
+                if (session.getAttribute("user") != null) {
+                    response.sendRedirect("expense");
+                    return;
+                }
+            %>
 
-    <form action="login" method="post">
-        <label for="username"></label><input type="text" name="username" id="username" placeholder="Username" required>
-        <label for="password"></label><input type="password" name="password" id="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
+            <% if (session.getAttribute("successMessage") != null) { %>
+            <div class="alert alert-success">
+                <%= session.getAttribute("successMessage") %>
+            </div>
+            <% session.removeAttribute("successMessage"); %>
+            <% } %>
 
-    <p>New user? <a href="register.jsp" class="register-link">Register here</a></p>
+            <% if (request.getAttribute("errorMessage") != null) { %>
+            <div class="alert alert-danger">
+                <%= request.getAttribute("errorMessage") %>
+            </div>
+            <% request.removeAttribute("errorMessage"); %>
+            <% } %>
+            <div class="login-title">Login to Your Account</div>
+
+            <form action="login" method="post">
+                <div class="mb-3">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" name="username" id="username"
+                           placeholder="Username"
+                           value="<%= request.getAttribute("prevUsername") != null ? request.getAttribute("prevUsername") : "" %>"
+                           required>
+
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+
+                <button type="submit" class="btn btn-login btn-primary w-100 mb-3">Login</button>
+
+                <p class="text-center">
+                    Don't have an account? <a href="register.jsp" class="register-link">Register here</a>
+                </p>
+            </form>
+        </div>
+    </div>
 </div>
+
 </body>
 </html>

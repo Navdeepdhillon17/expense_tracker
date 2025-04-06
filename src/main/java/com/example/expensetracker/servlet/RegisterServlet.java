@@ -33,9 +33,10 @@ public class RegisterServlet extends HttpServlet {
         if (isRegistered) {
             HttpSession session = request.getSession();
             session.setAttribute("successMessage", "Registration successful! Please log in.");
-            response.sendRedirect("login.jsp"); // Redirect to login page
+            response.sendRedirect("login.jsp");
             return;
-        } else {
+        }
+        else {
             request.setAttribute("errorMessage", "Registration failed. Try again.");
             request.getRequestDispatcher("register.jsp").forward(request, response);
         }

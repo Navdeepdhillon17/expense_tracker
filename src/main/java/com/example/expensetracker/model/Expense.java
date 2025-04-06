@@ -9,25 +9,29 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "title") // Map to the existing column
-    private String title;   // Change from 'name' to 'title'
+    @Column(name = "title")
+    private String title;
 
     private double amount;
     private String date;
 
-    // Constructors, getters, and setters updated accordingly
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    // Default constructor
     public Expense() {}
 
-    public Expense(String title, double amount, String date) {
+    // Constructor without ID (for creating new expenses)
+    public Expense(String title, double amount, String date, User user) {
         this.title = title;
         this.amount = amount;
         this.date = date;
+        this.user = user;
     }
 
-    // Change getName() to getTitle(), setName() to setTitle()
-
-
     // Getters and Setters
+
     public int getId() {
         return id;
     }
@@ -58,5 +62,13 @@ public class Expense {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

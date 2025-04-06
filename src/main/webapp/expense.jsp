@@ -1,185 +1,219 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="jakarta.servlet.http.HttpSession" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.example.expensetracker.model.Expense" %>
+<%@ page import="com.example.expensetracker.model.User" %>
 <%
-    HttpSession sessionObj = request.getSession(false);
-    if (sessionObj == null || sessionObj.getAttribute("user") == null) {
-        response.sendRedirect("login.jsp"); // Redirect to login page if not logged in
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        response.sendRedirect("login.jsp");
         return;
     }
+    List<Expense> expenses = (List<Expense>) request.getAttribute("expenses");
 %>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Expense Tracker</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --accent-color: #4895ef;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
         body {
-            background-color: #f5f7fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
         }
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+        header {
+            background-color: #3949ab;
+            color: white;
+            padding: 15px;
+            text-align: center;
         }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-        .table-responsive {
+        .container {
+            width: 85%;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 8px;
-            overflow: hidden;
         }
-        .form-control:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        h2 {
+            color: #3949ab;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            padding: 8px;
+            margin-right: 10px;
+            width: 20%;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #3949ab;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .alert {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .actions a {
+            color: #3949ab;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+             /* Logout Button */
+         .logout-btn {
+             position: absolute;
+             top: 20px;
+             right: 30px;
+             padding: 10px 18px;
+             background-color: #ff5c5c;
+             color: white;
+             border: none;
+             border-radius: 6px;
+             text-decoration: none;
+             font-weight: bold;
+             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+             transition: all 0.3s ease;
+         }
+
+        .logout-btn:hover {
+            background-color: #d84343;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Common Button Style */
+        .button {
+            padding: 10px 16px;
+            /*background-color: #9cc4e8;*/
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        /* Hover Effect for Buttons */
+        .button:hover {
+            /*background-color: #2c80b4;*/
+            border: 2px solid #3949ab;
+            transform: scale(1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .delete-btn:hover {
+            background-color:  #3949ab;
+        }
+
     </style>
+
 </head>
 <body>
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <!-- Header -->
-            <div class="text-center mb-5">
-                <h1 class="display-4 text-primary"><i class="bi bi-cash-stack"></i> Expense Tracker</h1>
-                <p class="lead text-muted">Track your spending effortlessly</p>
-            </div>
 
-            <!-- Alert Messages -->
-            <c:if test="${not empty success}">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        ${success}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            </c:if>
-            <c:if test="${not empty error}">
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        ${error}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            </c:if>
+<header>
+    <h1>Welcome, <%= user.getUsername() %></h1>
+    <a href="logout" class="logout-btn">Logout</a>
+</header>
 
-            <!-- Add Expense Card -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Add New Expense</h5>
-                </div>
-                <div class="card-body">
-                    <form action="expense" method="post">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="title" class="form-label">Title</label>
-                                <input type="text" class="form-control" id="title" name="title" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="amount" class="form-label">Amount</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0" required>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="date" class="form-label">Date</label>
-                                <input type="date" class="form-control" id="date" name="date" required>
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="bi bi-save"></i> Add Expense
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Expenses List Card -->
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-list-ul"></i> Your Expenses</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Title</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <c:forEach items="${expenses}" var="exp" varStatus="loop">
-                                <tr>
-                                    <td>${loop.index + 1}</td>
-                                    <td>${exp.title}</td>
-                                    <td>$${exp.amount}</td>
-                                    <td>${exp.date}</td>
-                                    <td>
-                                        <!-- Edit Button -->
-                                        <a href="expense?action=edit&id=${exp.id}" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-pencil"></i> Edit
-                                        </a>
-
-                                        <!-- Delete Button -->
-                                        <form action="expense" method="post" style="display:inline;">
-                                            <input type="hidden" name="_method" value="DELETE">
-                                            <input type="hidden" name="id" value="${exp.id}">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger ms-2"
-                                                    onclick="return confirm('Are you sure you want to delete this expense?')">
-                                                <i class="bi bi-trash"></i> Delete
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                            <c:if test="${empty expenses}">
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">
-                                        No expenses found. Add your first expense above!
-                                    </td>
-                                </tr>
-                            </c:if>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container">
+    <% if (session.getAttribute("successMessage") != null) { %>
+    <div class="alert alert-success">
+        <%= session.getAttribute("successMessage") %>
     </div>
-    <a href="logout">Logout</a>
+    <%
+        session.removeAttribute("successMessage");
+    %>
+    <% } %>
+
+    <% if (session.getAttribute("errorMessage") != null) { %>
+    <div class="alert alert-error">
+        <%= session.getAttribute("errorMessage") %>
+    </div>
+    <%
+        session.removeAttribute("errorMessage");
+    %>
+    <% } %>
+
+    <h2>Add Expense</h2>
+    <form method="post" action="expense">
+        <label>
+            <input type="text" name="title" placeholder="Title" required>
+        </label>
+        <label>
+            <input type="number" name="amount" step="0.01" placeholder="Amount" required>
+        </label>
+        <label>
+            <input type="date" name="date" required>
+        </label>
+        <input class="button" type="submit" value="Add Expense">
+    </form>
+
+    <h2>Your Expenses</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Amount (₹)</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% if (expenses != null && !expenses.isEmpty()) {
+            for (Expense expense : expenses) { %>
+        <tr>
+            <td><%= expense.getTitle() %></td>
+            <td><%= expense.getAmount() %></td>
+            <td><%= expense.getDate() %></td>
+            <td class="actions">
+                <a href="editExpense.jsp" class="button">Edit</a>
+
+                <form action="expense" method="post" style="display:inline;">
+                    <input type="hidden" name="id" value="<%= expense.getId() %>">
+                    <input type="hidden" name="action" value="delete">
+                    <input class="delete-btn button" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+                </form>
+
+            </td>
+        </tr>
+        <%   }
+        } else { %>
+        <tr>
+            <td colspan="4">No expenses yet. Add one above!</td>
+        </tr>
+        <% } %>
+        </tbody>
+    </table>
 </div>
 
-<!-- JavaScript Libraries -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Set today's date as default
-    document.getElementById('date').valueAsDate = new Date();
-
-    // Format currency display
-    document.querySelectorAll('td:nth-child(3)').forEach(td => {
-        if(td.textContent.startsWith('$')) {
-            const amount = parseFloat(td.textContent.substring(1));
-            td.textContent = '$' + amount.toFixed(2);
-        }
-    });
-</script>
 </body>
 </html>
