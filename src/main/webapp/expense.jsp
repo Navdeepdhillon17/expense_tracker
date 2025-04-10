@@ -162,20 +162,31 @@
         session.removeAttribute("errorMessage");
     %>
     <% } %>
+    <%
+        String expenseId = request.getParameter("id");
+        String expenseTitle = request.getParameter("title");
+        String expenseAmount = request.getParameter("amount");
+        String expenseDate = request.getParameter("date");
+    %>
+
 
     <h2>Add Expense</h2>
     <form method="post" action="expense">
+        <input type="hidden" name="id" value="<%= expenseId != null ? expenseId : "" %>">
+
         <label>
-            <input type="text" name="title" placeholder="Title" required>
+            <input type="text" name="title" placeholder="Title" value="<%= expenseTitle != null ? expenseTitle : "" %>" required>
         </label>
         <label>
-            <input type="number" name="amount" step="0.01" placeholder="Amount" required>
+            <input type="number" name="amount" step="0.01" placeholder="Amount" value="<%= expenseAmount != null ? expenseAmount : "" %>" required>
         </label>
         <label>
-            <input type="date" name="date" required>
+            <input type="date" name="date" value="<%= expenseDate != null ? expenseDate : "" %>" required>
         </label>
-        <input class="button" type="submit" value="Add Expense">
+
+        <input class="button" type="submit" value="<%= expenseId != null ? "Update Expense" : "Add Expense" %>">
     </form>
+
 
     <h2>Your Expenses</h2>
     <table>
@@ -195,7 +206,7 @@
             <td><%= expense.getAmount() %></td>
             <td><%= expense.getDate() %></td>
             <td class="actions">
-                <a href="editExpense.jsp" class="button">Edit</a>
+                <a href="expense.jsp?id=<%= expense.getId() %>&title=<%= expense.getTitle() %>&amount=<%= expense.getAmount() %>&date=<%= expense.getDate() %>" class="button">Edit</a>
 
                 <form action="expense" method="post" style="display:inline;">
                     <input type="hidden" name="id" value="<%= expense.getId() %>">
